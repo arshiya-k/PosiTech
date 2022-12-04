@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
 <!-- https://www.itsolutionstuff.com/post/multi-select-autocomplete-jquery-example-with-codeexample.html -->
-<form id="portfolio" method="POST" action="/portfolio-optimization">
+<form id="portfolio" method="POST" action="/optimize-portfolio">
     <label for="stock-list">Choose your stocks</label><br>
     <input type="text" name="stock-list" id="stock-list" required>
     <h3>Add your constraints</h3>
@@ -17,8 +17,8 @@
     </select><br>
     <label for="short-sale">Short sale constraint</label><br>
     <select name="short-sale" id="short-sale" required>
-        <option value="true">True</option>
-        <option value="false">False</option>
+        <option value="True">True</option>
+        <option value="False">False</option> 
     </select><br>
     <label for="ind-weight">Independent weight constraint</label><br>
     <select name="ind-weight" required>

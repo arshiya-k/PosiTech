@@ -16,14 +16,40 @@ def home():
 def about():
     return render_template("about.html")
 
-@app.route("/portfolio-optimization", methods=['GET','POST'])
-def portfolio():
-    if request.method == 'GET':
-        symbol_list = json.dumps(symbols.getStockSymbolList())
-        return render_template("portfolio.html", symbols=symbol_list)
+@app.route("/optimize-portfolio", methods=["GET", "POST"])
+def optimize_portfolio():
+    stocks_str = request.form["stock-list"]
+    stocks_raw = stocks_str.split(',')
+    stocks_raw.pop()
+    stocks = []
+    for s in stocks_raw:
+        stocks.append(s.strip())
 
-    if request.method == 'POST':
-        return render_template('about.html')
+    # print(stocks)
+
+    hist_data = request.form["hist-data"]
+
+    short_sale_str = request.form["short-sale"]
+    short_sale = bool(short_sale_str)
+
+    ind_weight_str = request.form["ind-weight"]
+    if (ind_weight_str == "None"):
+        ind_weight = None
+    else:
+        ind_weight = int(ind_weight_str)
+
+    client = polp.portfolio(stocks, hist_data, short_sale, ind_weight)
+
+    return (stocks)
+
+@app.route("/portfolio", methods=['GET','POST'])
+def portfolio():
+    # if request.method == 'GET':
+    symbol_list = json.dumps(symbols.getStockSymbolList())
+    return render_template("portfolio.html", symbols=symbol_list)
+
+    # if request.method == 'POST':
+    #     return 'hey'
     # return render_template("portfolio.html")
 
 if __name__=="__main__":

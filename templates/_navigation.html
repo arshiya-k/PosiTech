@@ -1,5 +1,5 @@
 <nav>
-    <a href = '/'> Home </a>
-    <a href = '/about'> About </a>
-    <a href = '/portfolio-optimization'> Optimize Portfolio</a>
+    {%for menu_item in ["home", "about"]%}
+        <a href="{{ url_for(menu_item) }}">{{ menu_item }}</a>
+    {% endfor %}
 </nav>
