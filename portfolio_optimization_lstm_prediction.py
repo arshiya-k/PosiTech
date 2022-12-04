@@ -10,9 +10,12 @@ Original file is located at
 # !pip install yfinance
 
 # !pip install PyPortfolioOpt
-
+#https://towardsdatascience.com/how-to-easily-show-your-matplotlib-plots-and-pandas-dataframes-dynamically-on-your-website-a9613eff7ae3
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+import matplotlib
+matplotlib.use('Agg')
 import requests 
 import copy
 import numpy as np

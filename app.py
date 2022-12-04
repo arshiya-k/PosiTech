@@ -1,12 +1,18 @@
 #https://realpython.com/primer-on-jinja-templating/#install-flask
 #https://hackersandslackers.com/flask-jinja-templates/
+#https://www.geeksforgeeks.org/how-to-use-flask-session-in-python-flask/
 # import requests as request
-from flask import Flask, render_template, request, json
+from flask import Flask, render_template, request, json, session
+from flask_session import Session
 import portfolio_optimization_lstm_prediction as polp
 import stock_symbols as symbols
 
-app = Flask(__name__)
 
+app = Flask(__name__)
+app.secret_key = "secret key"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route("/")
 def home():
@@ -37,8 +43,9 @@ def optimize_portfolio():
         ind_weight = None
     else:
         ind_weight = int(ind_weight_str)
-
-    client = polp.portfolio(stocks, hist_data, short_sale, ind_weight)
+    print(stocks, "1mo", hist_data, short_sale, ind_weight)
+    client = polp.portfolio(stocks, "1mo", hist_data, short_sale, ind_weight)
+    # session["client"] = client
 
     return (stocks)
 
