@@ -43,8 +43,11 @@ def optimize_portfolio():
         ind_weight = None
     else:
         ind_weight = int(ind_weight_str)
+    
+    amount = int(request.form["amount"])
+
     print(stocks, "1mo", hist_data, short_sale, ind_weight)
-    client = polp.portfolio(stocks, "1mo", hist_data, short_sale, ind_weight)
+    client = polp.portfolio(stocks, hist_data, short_sale_str, ind_weight, amount)
     # session["client"] = client
 
     return (stocks)
