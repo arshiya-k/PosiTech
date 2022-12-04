@@ -1,1 +1,131 @@
 {% extends 'layout.html' %}
+{% block content %}
+<!-- https://www.itsolutionstuff.com/post/multi-select-autocomplete-jquery-example-with-codeexample.html -->
+<form id="portfolio" method="POST" action="/portfolio-optimization">
+    <label for="stock-list">Choose your stocks</label><br>
+    <input type="text" name="stock-list" id="stock-list" required>
+    <h3>Add your constraints</h3>
+    <label for="hist-data">Length of historical data</label><br>
+    <select name="hist-data" id="hist-data" required>
+        <option value="1mo">Previous 1 month</option>
+        <option value="3mo">Previous 3 months</option>
+        <option value="6mo">Previous 6 months</option>
+        <option value="1y">Previous 1 year</option>
+        <option value="2y">Previous 2 years</option>
+        <option value="5y">Previous 5 years</option>
+        <option value="10y">Previous 10 years</option>
+    </select><br>
+    <label for="short-sale">Short sale constraint</label><br>
+    <select name="short-sale" id="short-sale" required>
+        <option value="true">True</option>
+        <option value="false">False</option>
+    </select><br>
+    <label for="ind-weight">Independent weight constraint</label><br>
+    <select name="ind-weight" required>
+        <option value="None">None</option>
+        <option value="0.05">0.05</option>
+        <option value="0.95">0.95</option>
+    </select><br>
+    <label for="amount">Amount that you have invested (in USD) </label><br> 
+    <input type="number" id="amount" name="amount" min="1" value="1000"><br>
+    <input type="submit" value="Optimize Portfolio"> 
+</form>
+<script>
+    //http://jsfiddle.net/phpdeveloperrahul/zMWLx/
+    $(function() {
+        function split(val) {
+            return val.split(/,\s*/);
+        }
+
+        function extractLast(term) {
+            return split(term).pop();
+        }
+
+        const stocks = JSON.parse({{ symbols | tojson }});
+
+        const stockList = stocks.map((symbol) => {
+            return {
+                value: symbol,
+                label: symbol
+            }
+        })
+
+        console.log(stockList)
+    
+    $('#stock-list')
+    .bind("keydown", function(event) {
+       if (event.keyCode === $.ui.keyCode.TAB &&
+         $(this).autocomplete("instance").menu.active) {
+         event.preventDefault();
+       }
+     })
+
+     .autocomplete({
+       minLength: 0,
+       source: function(request, response) {
+         // delegate back to autocomplete, but extract the last term
+         let results = $.ui.autocomplete.filter(
+           stockList, extractLast(request.term))
+         response(results.slice(0,7));
+       },
+
+       //    source:projects,    
+       focus: function() {
+         // prevent value inserted on focus
+         return false;
+       },
+       select: function(event, ui) {
+         var terms = split(this.value);
+         // remove the current input
+         terms.pop();
+         // add the selected item
+         terms.push(ui.item.value);
+         // add placeholder to get the comma-and-space at the end
+         terms.push("");
+         this.value = terms.join(", ");
+
+         var selected_label = ui.item.label;
+         var selected_value = ui.item.value;
+
+         var labels = $('#labels').val();
+         var values = $('#values').val();
+
+        //  if (labels == "") {
+        //    $('#labels').val(selected_label);
+        //    $('#values').val(selected_value);
+        //  } else {
+        //    $('#labels').val(labels + "," + selected_label);
+        //    $('#values').val(values + "," + selected_value);
+        //  }
+
+         return false;
+       }
+     });
+
+});
+    //https://medium.com/@crawftv/javascript-jinja-flask-b0ebfdb406b3
+    
+
+
+    // $(function(){
+    //     const stockList = JSON.parse({{ symbols | tojson }})
+    // var availableTags = [
+    //     "Laravel",
+    //     "Bootstrap",
+    //     "Server",
+    //     "JavaScript",
+    //     "JQuery",
+    //     "Perl",
+    //     "PHP",
+    //     "Python",
+    //     "Ruby",
+    //     "API",
+    //     "Scheme"
+    // ];
+//         $('#stock-list').autocomplete({
+//             source: stockList,
+//             multiselect: true
+//     });
+// });
+</script>
+{% endblock content %}

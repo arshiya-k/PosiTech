@@ -7,9 +7,9 @@ Original file is located at
     https://colab.research.google.com/drive/1B4WCvmFN6n0uR_zi-q_YaLiZbXsp_1Sj
 """
 
-!pip install yfinance
+# !pip install yfinance
 
-!pip install PyPortfolioOpt
+# !pip install PyPortfolioOpt
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -231,107 +231,107 @@ input will be limited in frontend
 
 """
 
-client1= portfolio(["AAPL","IBM","GOOGL","META"],year_ago="5y",short_sale_constrain = False, ind_weight_constrain = None)
+# client1= portfolio(["AAPL","IBM","GOOGL","META"],year_ago="5y",short_sale_constrain = False, ind_weight_constrain = None)
 
-"""### Visualize price"""
+# """### Visualize price"""
 
-client1.show_price_plot()
+# client1.show_price_plot()
 
-"""## Max Sharpe (purely based on historical data)"""
+# """## Max Sharpe (purely based on historical data)"""
 
-client1.max_SR()
+# client1.max_SR()
 
-"""## Black-Litterman model (adding user's view) </br>
-The model is currently using historical return as prior return. I will implement IMPLIED prior return from the market cap weight in given index, such as S&P 500 in this case, which gives us more forward-looking return in the model. Black_Litterman model is more like a linear algebra solution than optimization solution. Thus, I did not find a good way to put constraint (ex. short sale constraint) rather than controlling user's weight. 
-"""
+# """## Black-Litterman model (adding user's view) </br>
+# The model is currently using historical return as prior return. I will implement IMPLIED prior return from the market cap weight in given index, such as S&P 500 in this case, which gives us more forward-looking return in the model. Black_Litterman model is more like a linear algebra solution than optimization solution. Thus, I did not find a good way to put constraint (ex. short sale constraint) rather than controlling user's weight. 
+# """
 
-view = {"AAPL":-0.2,"META":0.2,"GOOGL":-0.05,"IBM":0}
+# view = {"AAPL":-0.2,"META":0.2,"GOOGL":-0.05,"IBM":0}
 
-client1.Black_Litterman_model(view)
+# client1.Black_Litterman_model(view)
 
-client1.back_test()
+# client1.back_test()
 
-"""## LSTM on daily price
-### Input the stock you want to predict
-"""
+# """## LSTM on daily price
+# ### Input the stock you want to predict
+# """
 
-stock_to_predict = "AAPL"
+# stock_to_predict = "AAPL"
 
-stock_df =yf.download(stock_to_predict,period="5y")
+# stock_df =yf.download(stock_to_predict,period="5y")
 
-"""## Preprocess data for LSTM
-### preprocess function
-For each data point t = i, </br>
-   x is close price & volume from (i-day_ago) ~ (i-1) </br>
-   y is close price at i
-"""
+# """## Preprocess data for LSTM
+# ### preprocess function
+# For each data point t = i, </br>
+#    x is close price & volume from (i-day_ago) ~ (i-1) </br>
+#    y is close price at i
+# """
 
-def preprocess_ds(data,day_ago):
-     x = []
-     y = []
-     for i in range(day_ago,len(data)):
-          x.append(data[i-day_ago:i]) # historical data: (i-day_ago)~(i-1)
-          y.append(data[i,0]) # current observation: i
-     return (np.array(x),np.array(y))
+# def preprocess_ds(data,day_ago):
+#      x = []
+#      y = []
+#      for i in range(day_ago,len(data)):
+#           x.append(data[i-day_ago:i]) # historical data: (i-day_ago)~(i-1)
+#           y.append(data[i,0]) # current observation: i
+#      return (np.array(x),np.array(y))
 
-"""### Normalization & train-test split"""
+# """### Normalization & train-test split"""
 
-day_ago = 50
-feature_lst = ["Close","Volume"]
-num_feature = len(feature_lst)
+# day_ago = 50
+# feature_lst = ["Close","Volume"]
+# num_feature = len(feature_lst)
 
-# Normalization 
-feature_normalizer = preprocessing.MinMaxScaler()
-normalized_df = feature_normalizer.fit_transform(stock_df[feature_lst])
-target_normalizer = preprocessing.MinMaxScaler() # use this to transfer prediction back 
-target_normalizer.fit(stock_df[["Close"]]) 
+# # Normalization 
+# feature_normalizer = preprocessing.MinMaxScaler()
+# normalized_df = feature_normalizer.fit_transform(stock_df[feature_lst])
+# target_normalizer = preprocessing.MinMaxScaler() # use this to transfer prediction back 
+# target_normalizer.fit(stock_df[["Close"]]) 
 
-# train-test split
-train_split = 0.8
-split_pt = math.ceil(len(normalized_df) * train_split)
+# # train-test split
+# train_split = 0.8
+# split_pt = math.ceil(len(normalized_df) * train_split)
 
-train_set = normalized_df[:split_pt]
-test_set = normalized_df[split_pt:]
+# train_set = normalized_df[:split_pt]
+# test_set = normalized_df[split_pt:]
 
-train_x , train_y = preprocess_ds(train_set,day_ago=day_ago)
-test_x, test_y = preprocess_ds(test_set,day_ago=day_ago)
+# train_x , train_y = preprocess_ds(train_set,day_ago=day_ago)
+# test_x, test_y = preprocess_ds(test_set,day_ago=day_ago)
 
-"""## model building """
+# """## model building """
 
-from tensorflow.python import metrics
-from tensorflow import keras
-from tensorflow.keras import layers
-import tensorflow as tf
+# from tensorflow.python import metrics
+# from tensorflow import keras
+# from tensorflow.keras import layers
+# import tensorflow as tf
 
-keras.backend.clear_session()
+# keras.backend.clear_session()
 
-model = keras.Sequential()
-model.add(layers.LSTM(150,input_shape=(day_ago,num_feature),return_sequences=True))
-model.add(layers.LSTM(100))
-model.add(layers.Dense(30,activation="relu"))
-model.add(layers.Dense(1))
+# model = keras.Sequential()
+# model.add(layers.LSTM(150,input_shape=(day_ago,num_feature),return_sequences=True))
+# model.add(layers.LSTM(100))
+# model.add(layers.Dense(30,activation="relu"))
+# model.add(layers.Dense(1))
 
-model.compile(loss="mean_squared_error",
-          optimizer="adam")
+# model.compile(loss="mean_squared_error",
+#           optimizer="adam")
 
-"""## Fit model on train set
+# """## Fit model on train set
 
-"""
+# """
 
-batch_size = 1
-epochs = 5
-# Train with train set
+# batch_size = 1
+# epochs = 5
+# # Train with train set
 
-model.fit(train_x,train_y,epochs=epochs,batch_size=batch_size)
+# model.fit(train_x,train_y,epochs=epochs,batch_size=batch_size)
 
-"""### Predict on test set"""
+# """### Predict on test set"""
 
-pred_y = model.predict(test_x)
+# pred_y = model.predict(test_x)
 
-"""## Visualization of test set"""
+# """## Visualization of test set"""
 
-import matplotlib.pyplot as plt
-plt.plot(pred_y,label="pred_y")
-plt.plot(test_y,label="test_y")
-plt.legend()
+# import matplotlib.pyplot as plt
+# plt.plot(pred_y,label="pred_y")
+# plt.plot(test_y,label="test_y")
+# plt.legend()
 

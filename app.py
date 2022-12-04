@@ -1,6 +1,9 @@
 #https://realpython.com/primer-on-jinja-templating/#install-flask
 #https://hackersandslackers.com/flask-jinja-templates/
-from flask import Flask, render_template
+# import requests as request
+from flask import Flask, render_template, request, json
+import portfolio_optimization_lstm_prediction as polp
+import stock_symbols as symbols
 
 app = Flask(__name__)
 
@@ -13,9 +16,15 @@ def home():
 def about():
     return render_template("about.html")
 
-@app.route("/portfolio-optimization")
+@app.route("/portfolio-optimization", methods=['GET','POST'])
 def portfolio():
-    return render_template("portfolio.html")
+    if request.method == 'GET':
+        symbol_list = json.dumps(symbols.getStockSymbolList())
+        return render_template("portfolio.html", symbols=symbol_list)
+
+    if request.method == 'POST':
+        return render_template('about.html')
+    # return render_template("portfolio.html")
 
 if __name__=="__main__":
     app.run(debug=True)
