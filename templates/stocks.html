@@ -1,14 +1,14 @@
 {% extends 'layout.html' %}
 {% block content %}
 <!-- https://www.itsolutionstuff.com/post/multi-select-autocomplete-jquery-example-with-codeexample.html -->
-<form id="portfolio" method="POST" action="/optimize-portfolio">
+<form id="stocks" method="POST" action="/visualize-lstm">
     <label for="stock-list">Choose your stocks</label><br>
     <input type="text" name="stock-list" id="stock-list" required>
-    <h3>Add your constraints</h3>
+    <!-- <h3>Add your constraints</h3>
     <label for="hist-data">Length of historical data</label><br>
     <select name="hist-data" id="hist-data" required>
         <option value="1mo">Previous 1 month</option>
-        <option value="3mo">Previous 3 months</option>
+        <option value="3mo">Previous 3 months</option>s
         <option value="6mo">Previous 6 months</option>
         <option value="1y">Previous 1 year</option>
         <option value="2y">Previous 2 years</option>
@@ -28,8 +28,8 @@
     </select><br>
     <label for="amount">Amount that you have invested (in USD) </label><br> 
     <input type="number" id="amount" name="amount" min="1" value="1000"><br>
-    <input type="submit" value="Optimize Portfolio"> 
-</form>
+    <input type="submit" value="Optimize Portfolio"> -->
+</form> 
 <script>
     //http://jsfiddle.net/phpdeveloperrahul/zMWLx/
     $(function() {

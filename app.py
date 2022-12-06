@@ -22,6 +22,18 @@ def home():
 def about():
     return render_template("about.html")
 
+
+@app.route('/visualize-lstm', methods=["GET", "POST"])
+def visualize_lstm():
+    stocks_str = request.form["stock-list"]
+    stocks_raw = stocks_str.split(',')
+    stocks_raw.pop()
+    stocks = []
+    for s in stocks_raw:
+        stocks.append(s.strip())
+    
+
+
 @app.route("/optimize-portfolio", methods=["GET", "POST"])
 def optimize_portfolio():
     stocks_str = request.form["stock-list"]
@@ -52,11 +64,11 @@ def optimize_portfolio():
 
     return (stocks)
 
-@app.route("/portfolio", methods=['GET','POST'])
+@app.route("/stocks", methods=['GET','POST'])
 def portfolio():
     # if request.method == 'GET':
     symbol_list = json.dumps(symbols.getStockSymbolList())
-    return render_template("portfolio.html", symbols=symbol_list)
+    return render_template("stocks.html", symbols=symbol_list)
 
     # if request.method == 'POST':
     #     return 'hey'

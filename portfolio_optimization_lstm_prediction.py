@@ -411,8 +411,22 @@ def LSTM_for_list_stock(stock_list,day_ago=50):
         
         return result_dic
 
+import matplotlib.pyplot as plt
+import io
+import base64
+
+def get_raw_fig(plt):
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    raw_fig = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+
+    return raw_fig
 
 def visualize_LSTM(result):
+    imgs = []
     for sym,df in result.items():
-        df.plot(title=sym)
-        df.plot().save_fig('static/lstm.png', type='png')
+        plt.figure()
+        df.plot(title=sym).get_figure()
+        imgs.append(get_raw_fig(plt))
