@@ -338,3 +338,81 @@ input will be limited in frontend
 # plt.plot(test_y,label="test_y")
 # plt.legend()
 
+def preprocess_ds(data,day_ago):
+     x = []
+     y = []
+     for i in range(day_ago,len(data)):
+          x.append(data[i-day_ago:i]) # historical data: (i-day_ago)~(i-1)
+          y.append(data[i,0]) # current observation: i
+     return (np.array(x),np.array(y))
+
+
+def preprocess_package(stock_df,day_ago = 50,feature_lst = ["Close","Volume"]):
+    
+  # Normalization 
+  feature_normalizer = preprocessing.MinMaxScaler()
+  normalized_df = feature_normalizer.fit_transform(stock_df[feature_lst])
+  target_normalizer = preprocessing.MinMaxScaler() # use this to transfer prediction back 
+  target_normalizer.fit(stock_df[["Close"]]) 
+
+  # train-test split
+  train_split = 0.8
+  split_pt = math.ceil(len(normalized_df) * train_split)
+
+  train_set = normalized_df[:split_pt]
+  test_set = normalized_df[split_pt:]
+
+  # preprocess
+  train_x , train_y = preprocess_ds(train_set,day_ago=day_ago)
+  test_x, test_y = preprocess_ds(test_set,day_ago=day_ago)
+
+  return (train_x, train_y, test_x, test_y, target_normalizer)
+
+from tensorflow.python import metrics
+from tensorflow import keras
+from tensorflow.keras import layers
+import tensorflow as tf
+
+def gimme_LSTM_model(day_ago=50,num_feature=2):
+  keras.backend.clear_session()
+
+  model = keras.Sequential()
+  model.add(layers.LSTM(150,input_shape=(day_ago,num_feature),return_sequences=True))
+  model.add(layers.LSTM(100))
+  model.add(layers.Dense(30,activation="relu"))
+  model.add(layers.Dense(1))
+
+  model.compile(loss="mean_squared_error",
+            optimizer="adam")
+  
+  return model
+
+
+def LSTM_for_list_stock(stock_list,day_ago=50):
+    feature_lst = ["Close","Volume"]
+    result_dic = {}
+    batch_size = 1
+    epochs = 3
+    num_feature = len(feature_lst)
+
+    for i in stock_list:
+        # preprocess
+        stock_df =yf.download(i,period="10y")
+        train_x, train_y, test_x, test_y, target_normalizer = preprocess_package(stock_df,day_ago=50)
+        # model 
+        model = gimme_LSTM_model(day_ago=50,num_feature=num_feature)
+        model.fit(train_x,train_y,epochs=epochs,batch_size=batch_size)
+        # predict
+        pred_y = model.predict(test_x)
+        y_pred_price = target_normalizer.inverse_transform(pred_y)
+        # result
+        result_df = pd.DataFrame(data={"original":stock_df["Close"][len(stock_df)-len(y_pred_price):],"pred":list(y_pred_price .reshape(1,len(y_pred_price ))[0])})
+        result_dic[i] = result_df
+        
+        return result_dic
+
+
+def visualize_LSTM(result):
+    for sym,df in result.items():
+        df.plot(title=sym)
+        df.plot().save_fig('static/lstm.png', type='png')
