@@ -395,6 +395,7 @@ def LSTM_for_list_stock(stock_list,day_ago=50):
     epochs = 3
     num_feature = len(feature_lst)
 
+
     for i in stock_list:
         # preprocess
         stock_df =yf.download(i,period="10y")
@@ -402,7 +403,11 @@ def LSTM_for_list_stock(stock_list,day_ago=50):
         # model 
         model = gimme_LSTM_model(day_ago=50,num_feature=num_feature)
         model.fit(train_x,train_y,epochs=epochs,batch_size=batch_size)
+        model.save("googl_model")
         # predict
+
+        # Inside the flask app
+        model = keras.model.load_model("googl_model")
         pred_y = model.predict(test_x)
         y_pred_price = target_normalizer.inverse_transform(pred_y)
         # result
@@ -432,3 +437,8 @@ def visualize_LSTM(result):
         imgs.append(get_raw_fig(plt))
 
     return imgs
+
+
+
+
+

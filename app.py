@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, json, session
 from flask_session import Session
 import portfolio_optimization_lstm_prediction as polp
 import stock_symbols as symbols
+import keras
 
 
 app = Flask(__name__, static_folder='/static')
@@ -47,6 +48,18 @@ def optimize_portfolio():
     stocks = []
     for s in stocks_raw:
         stocks.append(s.strip())
+    
+    user_input_stock = "GOOGL"
+
+    if user_input_stock=="GOOGL":
+        model = keras.models.load_model("googl_model")
+
+    pred_y = model.predict(test_x)
+    y_pred_price = target_normalizer.inverse_transform(pred_y)
+    # result
+    result_df = pd.DataFrame(data={"original":stock_df["Close"][len(stock_df)-len(y_pred_price):],"pred":list(y_pred_price .reshape(1,len(y_pred_price ))[0])})
+    result_dic[i] = result_df
+
 
     # print(stocks)
 
