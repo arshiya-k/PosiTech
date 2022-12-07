@@ -430,3 +430,5 @@ def visualize_LSTM(result):
         plt.figure()
         df.plot(title=sym).get_figure()
         imgs.append(get_raw_fig(plt))
+
+    return imgs

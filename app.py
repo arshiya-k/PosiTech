@@ -8,7 +8,7 @@ import portfolio_optimization_lstm_prediction as polp
 import stock_symbols as symbols
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/static')
 app.secret_key = "secret key"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -31,6 +31,11 @@ def visualize_lstm():
     stocks = []
     for s in stocks_raw:
         stocks.append(s.strip())
+
+    result = polp.LSTM_for_list_stock(stocks)
+    visualizations = polp.visualize_LSTM(result)
+
+    return render_template('lstm_prediction.html', images = visualizations)
     
 
 
