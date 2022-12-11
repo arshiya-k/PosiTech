@@ -9,11 +9,13 @@ import stock_symbols as symbols
 import keras
 import os
 
-IMAGES = os.path.join('static', 'img')
+# IMAGES = os.path.join('static', 'img')
 
-app = Flask(__name__, static_folder='/static')
+static = os.path.abspath('static')
 
-app.secret_key = "secret key"
+app = Flask(__name__, static_folder=static)
+
+app.secret_key = "a very very very secret key"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -26,9 +28,24 @@ def home():
 def about():
     return render_template("about.html")
 
+@app.route("/predictions")
+def predictions():
+    stocks = session['stock-list']
+    images = []
+    for s in stocks:
+        file_path = f'/static/{s}_viz.png'
+        # file_path = os.path.join(static, f'{s}_viz.png')
+        images.append(file_path)
+    # result = polp.LSTM_for_list_stock(stocks)
+    # visualizations = polp.visualize_LSTM(result)
+    # print(images)
+    
+    return render_template('predictions.html', images = images)
+    # return render_template("predictions.html")
 
-@app.route('/visualize-lstm', methods=["GET", "POST"])
+@app.route('/portfolio', methods=["GET", "POST"])
 def visualize_lstm():
+    session['client-portfolio'] = request.form
     stocks_str = request.form["stock-list"]
     stocks_raw = stocks_str.split(',')
     stocks_raw.pop()
@@ -36,26 +53,70 @@ def visualize_lstm():
     for s in stocks_raw:
         stocks.append(s.strip())
 
-    images = []
+    session['stock-list'] = stocks
+    # images = []
+    hist_data = request.form["hist-data"]
+    print(hist_data)
+    short_sale_str = request.form["short-sale"]
+    if (short_sale_str=="True"):
+        short_sale = True
+    elif (short_sale_str=="False"):
+        short_sale = False
+    # short_sale = bool(short_sale_str)
+    print(type(short_sale))
 
-    for s in stocks:
-        file_path = os.path.join(IMAGES, f'{s}_viz.png')
-        images.append(file_path)
-    # result = polp.LSTM_for_list_stock(stocks)
-    # visualizations = polp.visualize_LSTM(result)
+    # print(request.form["ind-weight"])
+    ind_weight_str = request.form["ind-weight"]
+    if (ind_weight_str == "None"):
+        ind_weight = None
+    else:
+        ind_weight = float(ind_weight_str)
+    print(ind_weight_str)
+    amount = int(request.form["amount"])
+    print(amount)
 
-    return render_template('lstm_prediction.html', images = images)
+    portfolio_data = {"symbol_list": stocks, "interval" :"1mo", "year_ago": hist_data, "short_sale_constrain": short_sale, "ind_weight_constrain" : ind_weight, "invested_cash": amount}
+    session["portfolio-data"] = portfolio_data
+    client = polp.portfolio(symbol_list = stocks, interval="1mo", year_ago = hist_data, short_sale_constrain = short_sale, ind_weight_constrain = ind_weight, invested_cash = amount)
+    # session["client"]=client
+    stats, df = client.max_SR()
+    client.show_price_plot();
+
+    print(stats)
+    print(df)
+
+    img_path = os.path.join(static, 'price_plot.png')
+    
+
+    return render_template('portfolio.html', stats=stats, df=df)
+    # for s in stocks:
+    #     file_path = f'/static/{s}_viz.png'
+    #     # file_path = os.path.join(static, f'{s}_viz.png')
+    #     images.append(file_path)
+    # # result = polp.LSTM_for_list_stock(stocks)
+    # # visualizations = polp.visualize_LSTM(result)
+    # # print(images)
+    # session['stock-list'] = stocks
+    # return render_template('lstm_prediction.html', images = images)
     
 
 
 @app.route("/optimize-portfolio", methods=["GET", "POST"])
 def optimize_portfolio():
-    stocks_str = request.form["stock-list"]
-    stocks_raw = stocks_str.split(',')
-    stocks_raw.pop()
-    stocks = []
-    for s in stocks_raw:
-        stocks.append(s.strip())
+    p_data = session["portfolio-data"]
+    client = polp.portfolio(symbol_list = p_data["symbol_list"], interval=p_data["interval"], year_ago = p_data["year_ago"], short_sale_constrain = p_data["short_sale_constrain"], ind_weight_constrain = p_data["ind_weight_constrain"], invested_cash = p_data["invested_cash"])
+    view = request.form.to_dict()
+    bl_stat, df = client.Black_Litterman_model(view)
+    client.back_test()
+
+    return render_template("optimized-portfolio.html", stats = bl_stat, df=df)
+    # return request.form
+    # stocks_str = request.form["stock-list"]
+    # stocks_raw = stocks_str.split(',')
+    # stocks_raw.pop()
+    # stocks = []
+    # for s in stocks_raw:
+    #     stocks.append(s.strip())
     
     # user_input_stock = "GOOGL"
 
@@ -72,29 +133,43 @@ def optimize_portfolio():
     # # print(stocks)
 
     # hist_data = request.form["hist-data"]
-
+    # print(hist_data)
     # short_sale_str = request.form["short-sale"]
+    # if (short_sale_str=="True"):
+    #     short_sale = True
+    # elif (short_sale_str=="False"):
+    #     short_sale = False
     # short_sale = bool(short_sale_str)
+    # print(type(short_sale))
 
+    # print(request.form["ind-weight"])
     # ind_weight_str = request.form["ind-weight"]
     # if (ind_weight_str == "None"):
     #     ind_weight = None
     # else:
-    #     ind_weight = int(ind_weight_str)
-    
+    #     ind_weight = float(ind_weight_str)
+    # print(ind_weight_str)
     # amount = int(request.form["amount"])
-
-    print(stocks, "1mo", hist_data, short_sale, ind_weight)
-    client = polp.portfolio(stocks, hist_data, short_sale_str, ind_weight, amount)
+    # print(amount)
+    # client = polp.portfolio(symbol_list = session['stock-list'], interval="1mo", year_ago = hist_data, short_sale_constrain = short_sale, ind_weight_constrain = ind_weight, invested_cash = amount)
     # session["client"] = client
 
-    return (stocks)
+    # stats, df = client.max_SR()
+    # print(stats)
+    # print(df)
+
+    # return render_template('portfolio.html', stats=stats, df=df)
+
+# @app.route('/constraints', methods=['POST', 'GET'])
+# def add_constraints():
+#     return render_template('constraints.html', stocks= session["stock-list"])
 
 @app.route("/stocks", methods=['GET','POST'])
 def portfolio():
     # if request.method == 'GET':
     # symbol_list = json.dumps(symbols.getStockSymbolList())
-    symbol_list = ['AAPL', 'GOOGL', 'IBM', 'JPM', 'META']
+    # print(symbol_list)
+    symbol_list = json.dumps(['AAPL', 'GOOGL', 'IBM', 'JPM', 'META'])
     return render_template("stocks.html", symbols=symbol_list)
 
     # if request.method == 'POST':

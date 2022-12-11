@@ -100,7 +100,8 @@ class portfolio:
 
     # show stock price time series plot
     def show_price_plot(self):
-        self.price_df.plot()
+        fig = self.price_df.plot().get_figure()
+        fig.savefig(f'static\price_plot.png')
 
     # print sharpe, return and standard deviation
     def visualize_stat(self):
@@ -142,13 +143,23 @@ class portfolio:
         # visualize stat
         self.visualize_stat()
 
+        # save stats for use in app
+        stats = {}
+        stats["Sharpe Ratio"] = self.sharpe
+        stats["Annul return"] = round(np.dot(self.weight_mat,self.ann_rtn_mat),4)*100
+        stats["Standard deviation"] = round(np.sqrt(np.matmul(np.matmul(self.weight_mat,self.cov_mat),self.weight_mat)),4)*100
+
         # visualize weight table 
-        display_df = pd.DataFrame({" ":self.symbol_list,"Weight":list(map(lambda x:str(round(x,3)*100)+"%", self.weight_mat))})
-        display_df = display_df.transpose()
-        display_df.columns = display_df.iloc[0]
-        display_df=display_df.iloc[1:,:]
-        display_df = pd.concat([display_df,self.num_stock_to_buy(self.price_df[-1:])])
+        # display_df = pd.DataFrame({" ":self.symbol_list,"Weight":list(map(lambda x:str(round(x,3)*100)+"%", self.weight_mat))})
+        # display_df = display_df.transpose()
+        # display_df.columns = display_df.iloc[0]
+        # display_df=display_df.iloc[1:,:]
+        # display_df = pd.concat([display_df,self.num_stock_to_buy(self.price_df[-1:])])
+        
+        display_df = pd.DataFrame({"Symbol":self.symbol_list,"Weight":list(map(lambda x:str(round(x,3)*100)+"%", self.weight_mat)),"# stock":self.num_stock_to_buy(self.price_df[-1:]).loc["number of stock"].values})
         display(display_df)
+
+        return stats, display_df
       
     def Black_Litterman_model(self,view):
 
@@ -156,7 +167,8 @@ class portfolio:
         # risk aversion score on SPY (index)
         risk_aversion = pypfopt.black_litterman.market_implied_risk_aversion(spy, risk_free_rate=get_rf())
         # Black_Litterman Model
-        bl=pypfopt.BlackLittermanModel(cov_matrix=client1.cov_mat, pi=client1.ann_rtn_mat,absolute_views=view,risk_aversion=risk_aversion)
+        bl=pypfopt.BlackLittermanModel(cov_matrix=self.cov_mat, pi=self.ann_rtn_mat,absolute_views=view,risk_aversion=risk_aversion)
+        # bl=pypfopt.BlackLittermanModel(cov_matrix=client1.cov_mat, pi=client1.ann_rtn_mat,absolute_views=view,risk_aversion=risk_aversion)
 
         # update stat
         # we use POSTERIOR return & cov that are based on prior return to calculate portfolio stat
@@ -169,13 +181,28 @@ class portfolio:
         # visualize stat
         self.visualize_stat()
 
+        bl_stat = {}     
+        
+        bl_stat["Sharpe Ratio"] = round(self.sharpe,4)
+        bl_stat["Annul return"] = round(self.ann_rtn,4)*100
+        bl_stat["Standard deviation"] = round(self.std,4)*100
+
         # Visualization
+        # display_df = pd.DataFrame.from_dict(bl.bl_weights(),orient="index")
+        # display_df.columns=["Weight"]
+        # display_df["Weight"] = display_df["Weight"].apply(lambda x : str(round(x,3)*100)+"%")
+        # display_df = display_df.transpose()
+        # display_df = pd.concat([display_df,self.num_stock_to_buy(self.price_df[-1:])])
+        # display(display_df)
+
         display_df = pd.DataFrame.from_dict(bl.bl_weights(),orient="index")
-        display_df.columns=["Weight"]
+        display_df.reset_index(inplace=True)
+        display_df.columns=["Symbol","Weight"]
         display_df["Weight"] = display_df["Weight"].apply(lambda x : str(round(x,3)*100)+"%")
-        display_df = display_df.transpose()
-        display_df = pd.concat([display_df,self.num_stock_to_buy(self.price_df[-1:])])
+        display_df["# stock"] = self.num_stock_to_buy(self.price_df[-1:]).loc["number of stock"].values
         display(display_df)
+
+        return bl_stat, display_df
 
     def back_test(self):
       # daily price
@@ -206,7 +233,8 @@ class portfolio:
       plt.title("Three-year trend SPY vs Porfolio vs Equal Weight")
       plt.axhline(self.invest_cash,linestyle = '--')
       plt.legend()
-      plt.show()
+      plt.savefig("static\year_three.png")
+    #   plt.show()
       # calculate the starting porfolio and the trend 
       one_yr_start = one_yr.iloc[0]
 
@@ -224,7 +252,8 @@ class portfolio:
       
       plt.legend()
       plt.axhline(self.invest_cash,linestyle = '--')
-      plt.show()
+      plt.savefig("static\year_one.png")
+    #   plt.show()
 
 """# Initialize Your Portfolio Here 
 year_ago = 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max </br>
@@ -234,7 +263,7 @@ input will be limited in frontend
 
 """
 
-# client1= portfolio(["AAPL","IBM","GOOGL","META"],year_ago="5y",short_sale_constrain = False, ind_weight_constrain = None)
+# client1= portfolio(["AAPL", "META"],year_ago="1mo",short_sale_constrain = False, ind_weight_constrain = None)
 
 # """### Visualize price"""
 

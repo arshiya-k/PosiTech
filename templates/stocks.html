@@ -1,9 +1,33 @@
 {% extends 'layout.html' %}
 {% block content %}
 <!-- https://www.itsolutionstuff.com/post/multi-select-autocomplete-jquery-example-with-codeexample.html -->
-<form id="stocks" method="POST" action="/visualize-lstm">
+<form id="stocks" method="POST" action="/portfolio">
     <label for="stock-list">Choose your stocks</label><br>
     <input type="text" name="stock-list" id="stock-list" required>
+    <label for="hist-data">Length of historical data</label><br> 
+    <select name="hist-data" id="hist-data" required>
+        <!-- <option value="1mo">Previous 1 month</option>
+        <option value="3mo">Previous 3 months</option>
+        <option value="6mo">Previous 6 months</option> -->
+        <option value="1y">Previous 1 year</option>
+        <option value="2y">Previous 2 years</option>
+        <option value="5y">Previous 5 years</option>
+        <option value="10y">Previous 10 years</option>
+    </select><br>
+    <label for="short-sale">Short sale constraint</label><br>
+    <select name="short-sale" id="short-sale" required>
+        <option value="True">True</option>
+        <option value="False">False</option> 
+    </select><br>
+    <label for="ind-weight">Independent weight constraint</label><br>
+    <select name="ind-weight" required>
+        <option value="None">None</option>
+        <option value="0.05">0.05</option>
+        <option value="0.95">0.95</option>
+    </select><br>
+    <label for="amount">Amount that you have invested (in USD) </label><br> 
+    <input type="number" id="amount" name="amount" min="1" value="1000"><br> 
+    <input type="submit" value="Optimize portfolio"> 
     <!-- <h3>Add your constraints</h3>
     <label for="hist-data">Length of historical data</label><br>
     <select name="hist-data" id="hist-data" required>
@@ -28,7 +52,7 @@
     </select><br>
     <label for="amount">Amount that you have invested (in USD) </label><br> 
     <input type="number" id="amount" name="amount" min="1" value="1000"><br> -->
-    <input type="submit" value="Optimize Portfolio"> 
+    <!-- <input type="submit" value="Submit">  -->
 </form> 
 <script>
     //http://jsfiddle.net/phpdeveloperrahul/zMWLx/
