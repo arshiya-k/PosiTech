@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+}
+html {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    background-color: #f6f6f2;
+}
+
+.head_container {
+    color: #388087;
+    padding-top: 5em;
+    padding-bottom: 5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.head_container h1 {
+    font-weight: 800;
+    text-align: center;
+    font-size: 5em;
+    /* margin: 0px; */
+    margin-top: 0.8em;
+    background-image: linear-gradient(to left, #388087, #badfe7);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+.head_container h2 {
+    font-size: 2.3em;
+    color: #6fb3b8;
+    padding-bottom: 1.5em;
+}
+
+.head_container h3 {
+    text-align: center;
+    font-size: 1.7em;
+}
+
+.home_container {
+    margin: 5% 12% 5% 12%;
+    color: #388087
+}
+/* For mobile phones: */
+[class*="col-"] {
+width: 100%;
+}
+
+.btn {
+    border: 2px solid #388087;
+    color: #388087; 
+    border-radius: 8px;
+    background-color: #f6f6f2;
+    transition-duration: 0.4s;
+    padding: 15px 32px;
+    font-size: 16px;
+    margin: 4px 2px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn:hover{
+    background-color: #388087;
+    color: #f6f6f2;
+    border: 2px solid #388087;
+    
+}
+
+form input {
+    margin: 0.5em;
+}
+
+#stocks {
+    background-color: #badfe7;
+    color: #388087;
+    border-radius: 10px;
+    border: 1px solid #388087;
+    padding: 15px 32px;
+    font-size: 16px;
+    margin: 4px 2px;
+
+}
+@media only screen and (min-width: 600px) {
+/* For tablets: */
+
+}
+
+@media only screen and (min-width: 768px) {
+/* For desktop: */
+.tag-line {
+    text-align: center;
+    overflow: hidden; /* Ensures the content is not revealed until the animation */
+    /* border-right: .15em solid orange; /* The typwriter cursor */
+    white-space: nowrap;  /*Keeps the content on a single line */
+    margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+    letter-spacing: .05em; /* Adjust as needed */
+    animation: 
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+}
+
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}

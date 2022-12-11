@@ -3,7 +3,18 @@
 <!-- https://www.itsolutionstuff.com/post/multi-select-autocomplete-jquery-example-with-codeexample.html -->
 <form id="stocks" method="POST" action="/portfolio">
     <label for="stock-list">Choose your stocks</label><br>
-    <input type="text" name="stock-list" id="stock-list" required>
+    <!-- <select name="stock-list" id="hist-data" required>
+        <option value="1mo">Previous 1 month</option>
+        <option value="3mo">Previous 3 months</option>
+        <option value="6mo">Previous 6 months</option> -->
+        <!-- <option value="AAPL">AAPL</option>
+        <option value="GOOGL">GOOGL</option>
+        <option value="JPM">JPM</option>
+        <option value="IBM">IBM</option>
+        <option value="META">META</option>
+    </select><br> --> 
+
+    <input type="text" name="stock-list" id="stock-list" required><br>
     <label for="hist-data">Length of historical data</label><br> 
     <select name="hist-data" id="hist-data" required>
         <!-- <option value="1mo">Previous 1 month</option>
@@ -27,7 +38,7 @@
     </select><br>
     <label for="amount">Amount that you have invested (in USD) </label><br> 
     <input type="number" id="amount" name="amount" min="1" value="1000"><br> 
-    <input type="submit" value="Optimize portfolio"> 
+    <input type="submit" value="Get Stats" class="btn"> 
     <!-- <h3>Add your constraints</h3>
     <label for="hist-data">Length of historical data</label><br>
     <select name="hist-data" id="hist-data" required>
@@ -126,8 +137,8 @@
        }
      });
 
-});
-    //https://medium.com/@crawftv/javascript-jinja-flask-b0ebfdb406b3
+}); -->
+    <!-- //https://medium.com/@crawftv/javascript-jinja-flask-b0ebfdb406b3
     
 
 
@@ -151,6 +162,6 @@
 //             multiselect: true
 //     });
 // });
- // Arshiya is the best :)
+ // Arshiya is the best :) -->
 </script>
 {% endblock content %}

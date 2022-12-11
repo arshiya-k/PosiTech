@@ -1,7 +1,21 @@
 {% extends 'layout.html' %}
 {% block content %}
     <div class="container">
-        <h2>About Our Project</h2>
-        <p>Project description</p>
+        <div class="home_container">
+            <h3>At PosiTech, we aim to help you make much more educated decisions in investing. By using modern-machine learning technology, we save you the need of spending hours on the Internet trying to figure out how to make money.</h3>
+            <p> We do this in three ways:</p>
+            <!-- <h3>There are three parts:</h3> -->
+                <ul>
+                    <li><strong><a href="http://127.0.0.1:5000/portfolio"> Portfolio Optimization:</a></strong> calculate Max Sharpe ratio portfolio with input list of symbol names,
+                        time period of historical data, short-sales constraints, and individual weight constraint. 
+                        After seeing the Max Sharpe weights, the users can input their long-short view that can generate an optimal Black-Litterman model portfolio. </li>
+                    <li><strong><a> Sentiment Analysis:</a></strong> show the user the sentiment score of latest posts on social media and news about the particular stock in order 
+                        to make user aware of the current discussions in public and the news associated with the company. 
+                        This way the user will be able to make a bit deeper analysis on each of the stocks and possibly make adjustments 
+                        to the weights of stocks in the portfolio based on the overall public sentiment. 
+                    </li>
+                    <li><strong><a>Stock Price Prediction:</a></strong> use LSTM model with daily closed price, volume and sentiment of financial market, NeuralProphet, and ARIMA to predict future closed price. </li>
+                </ul>
+        </div>
     </div>
 {% endblock %}
