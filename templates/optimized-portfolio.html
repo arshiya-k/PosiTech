@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="price-plot">
+    <img class="center-block" src="{{ url_for('static', filename= 'year_three.png') }}" />
+    <img class="center-block" src="{{ url_for('static', filename= 'year_one.png') }}" />
+</div>
+<ul class="sr-stats">
+    <li><b>Sharpe Ratio:</b> {{ stats["Sharpe Ratio"] }}</li>
+    <li><b>Annual Return:</b> {{ stats["Annul return"] }}%</li>
+    <li><b>Standard Deviation:</b> {{ stats["Standard deviation"] }}%</li>
+</ul>
+<table class="stock-weight">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Weight</th>
+            <th>Number of Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for k,i in df.iterrows() %}
+        <tr>
+            <td>{{ i["Symbol"] }}</td>
+            <td>{{ i["Weight"] }}</td>
+            <td>{{ i["# stock"] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="buttons">
+    <p>Still looking to improve your portfolio? Look here</p>
+    <a href="/predictions" class="btn"> Our Predictions </a>
+    <a href="/" class="btn">Sentiment Analysis</a>
+</div>
+{% endblock content %}
