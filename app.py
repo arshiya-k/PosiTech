@@ -151,10 +151,11 @@ reddit.read_only = True
 
 subreddit = reddit.subreddit('stocks+WallStreetBets+Investing')
 
-posts = subreddit.new(limit=100000)
+posts = subreddit.new(limit=1000)
 
 def reddit_api(company_list):
     df = pd.DataFrame(columns = ['post', 'keyword', 'date', 'link', "sentiment_score"])
+    posts = subreddit.search(company_list)
 
     compound_sentiment_per_stock = []
 
@@ -174,9 +175,12 @@ def reddit_api(company_list):
 ################################################ REDDIT ######################################################
 @app.route("/sentiment_analysis", methods = ["GET", "POST"])
 def sentiment_analysis():
-    if 'stocks_list' in request.form:
-        stocks = request.form['stocks_list']
-        stocks = stocks.split(",")
+    if (session['stock-list']):
+        # stocks = request.form['stocks_list']
+        # stocks = stocks.split(",") 
+        stocks = session['stock-list']
+        print("session data", stocks)
+        
 
         reddit_data_and_scores = reddit_api(stocks)
         reddit_data = reddit_data_and_scores[0]
@@ -196,12 +200,12 @@ def sentiment_analysis():
         news_sentiment_scores = news_data_and_scores[1]
         news_sentiment_scores.insert(0, "News sentiment score ")
 
-    else:
-      stocks = ["Company 1", "Company 2", "Company 3"]
-      reddit_sentiment_scores = ["Reddit sentiment score", "Nan","Nan", "Nan"]
-      news_sentiment_scores = ["News sentiment score","Nan","Nan", "Nan"]
-      twitter_sentiment_scores = ["Twitter sentiment score","Nan","Nan", "Nan"]
-      news_data = pd.DataFrame()
+    # else:
+    #   stocks = ["Company 1", "Company 2", "Company 3"]
+    #   reddit_sentiment_scores = ["Reddit sentiment score", "Nan","Nan", "Nan"]
+    #   news_sentiment_scores = ["News sentiment score","Nan","Nan", "Nan"]
+    #   twitter_sentiment_scores = ["Twitter sentiment score","Nan","Nan", "Nan"]
+    #   news_data = pd.DataFrame()
 
 
     return render_template("sentiment_analysis.html", stocks = stocks, news_data = news_data, twitter_sentiment_scores = twitter_sentiment_scores, reddit_sentiment_scores = reddit_sentiment_scores, news_sentiment_scores = news_sentiment_scores )

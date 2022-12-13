@@ -1,9 +1,13 @@
 {% extends 'layout.html' %}
 {% block content %}
+<div class="data">
+
+
 <h1> Reddit Data </h1>
 <a href="{{ url_for('sentiment_analysis')}}">Sentiment Analysis</a>
 {% for table in tables %}
             {{ table|safe }}
 {% endfor %}
-
+</div>
 {% endblock content %}
+

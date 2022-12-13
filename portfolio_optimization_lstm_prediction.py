@@ -100,8 +100,15 @@ class portfolio:
 
     # show stock price time series plot
     def show_price_plot(self):
-        fig = self.price_df.plot().get_figure()
-        fig.savefig(f'static\price_plot.png')
+        # fig = self.price_df.plot().get_figure()
+        # fig.savefig(f'static\price_plot.png')
+        for i in self.price_df.columns:
+            plt.plot(self.price_df[[i]],label=i)
+        plt.legend()
+        plt.savefig("static\price_plot.png")
+        plt.show()
+        plt.clf()
+
 
     # print sharpe, return and standard deviation
     def visualize_stat(self):
@@ -205,6 +212,7 @@ class portfolio:
         return bl_stat, display_df
 
     def back_test(self):
+      plt.clf()
       # daily price
       daily_price,sym = get_adjusted_price(self.symbol_list,interval="1d",year_ago="5y")
       # spy
@@ -227,6 +235,7 @@ class portfolio:
       port_trend = np.sum(three_yr * list(three_yr_port),axis=1)
       spy_trend = three_yr_spy * three_yr_num_sp
       equal_trend = np.sum(three_yr * list(three_yr_equal),axis=1)
+      
       plt.plot(port_trend,label="Portfolio")
       plt.plot(spy_trend,label="SPY")
       plt.plot(equal_trend,label="Equal Weighted")
@@ -234,7 +243,9 @@ class portfolio:
       plt.axhline(self.invest_cash,linestyle = '--')
       plt.legend()
       plt.savefig("static\year_three.png")
-    #   plt.show()
+      plt.show()
+
+      plt.clf()
       # calculate the starting porfolio and the trend 
       one_yr_start = one_yr.iloc[0]
 
@@ -253,7 +264,7 @@ class portfolio:
       plt.legend()
       plt.axhline(self.invest_cash,linestyle = '--')
       plt.savefig("static\year_one.png")
-    #   plt.show()
+      plt.show()
 
 """# Initialize Your Portfolio Here 
 year_ago = 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max </br>

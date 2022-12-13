@@ -1,9 +1,14 @@
 {% extends 'layout.html' %}
 {% block content %}
+<div class="data">
+
+
 <h1> News Data </h1>
-<a href="{{ url_for('sentiment_analysis')}}">Sentiment Analysis</a>
+<!-- <a href="{{ url_for('sentiment_analysis')}}">Sentiment Analysis</a> -->
 {% for table in tables %}
             {{ table|safe }}
 {% endfor %}
 
 {% endblock content %}
+
+</div>

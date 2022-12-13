@@ -1,56 +1,70 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="price-plot">
-    <img class="center-block" src="{{ url_for('static', filename= 'price_plot.png') }}" />
-</div>
-<ul class="sr-stats">
-    <li><b>Sharpe Ratio:</b> {{ stats["Sharpe Ratio"] }}</li>
-    <li><b>Annual Return:</b> {{ stats["Annul return"] }}%</li>
-    <li><b>Standard Deviation:</b> {{ stats["Standard deviation"] }}%</li>
-</ul>
-<table class="stock-weight">
-    <thead>
-        <tr>
-            <th>Ticker</th>
-            <th>Weight</th>
-            <th>Number of Stock</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for k,i in df.iterrows() %}
-        <tr>
-            <td>{{ i["Symbol"] }}</td>
-            <td>{{ i["Weight"] }}</td>
-            <td>{{ i["# stock"] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<div id="view">
-    <form action="\optimize-portfolio" method="POST">
-        <table class="view">
-            <thead>
-                <tr>
-                {% for k,i in df.iterrows() %}
-                    <th> {{ i["Symbol"] }}</th>
-                {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
+<div class="portfolio-display">
+    <h2>Your Portfolio.</h2>
+    <div class="portfolio-content">
+
+
+        <div class="col1">
+            <div>Here's how your stats are looking so far.</div>
+            <ul class="sr-stats">
+                <li><b>Sharpe Ratio:</b> {{ stats["Sharpe Ratio"] }}</li>
+                <li><b>Annual Return:</b> {{ stats["Annul return"] }}%</li>
+                <li><b>Standard Deviation:</b> {{ stats["Standard deviation"] }}%</li>
+            </ul>
+            <br>
+            <div>According to our calculations, you should divide your stocks in these ratios.</div>
+            <table class="stock-weight">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Weight</th>
+                        <th>Number of Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for k,i in df.iterrows() %}
-                    <td>
-                        <input id="{{ i["Symbol"] }}" name= "{{ i["Symbol"] }}" type="number" min="-1" max="1" step="0.1" value="0">
-                    </td>
+                    <tr>
+                        <td>{{ i["Symbol"] }}</td>
+                        <td>{{ i["Weight"] }}</td>
+                        <td>{{ i["# stock"] }}</td>
+                    </tr>
                     {% endfor %}
-                </tr>
-            </tbody>
-        </table>
-        <input type="submit" value="Add Parameters">
-    </form>
-        
-
-
+                </tbody>
+            </table>
+            <br>
+            <div>How do you wanna divide up your stocks? (Think about it like rating each stock from 1-10, except its -1 to 1).</div>
+            <div id="view">
+                <form id="views" action="\optimize-portfolio" method="POST">
+                    <table class="view">
+                        <thead>
+                            <tr>
+                            {% for k,i in df.iterrows() %}
+                                <th> {{ i["Symbol"] }}</th>
+                            {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for k,i in df.iterrows() %}
+                                <td>
+                                    <input id="{{ i["Symbol"] }}" name= "{{ i["Symbol"] }}" type="number" min="-1" max="1" step="0.01" value="0">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                    <input type="submit" value="Add Parameters" class="btn" id="btn">
+                </form>
+            </div>
+        </div>
+        <div class="col2">
+            <div class="pric-fluc">
+                <h3>According to our data, the stock prices have fluctuated like this:</h3>
+                <img class="center-block" src="{{ url_for('static', filename= 'price_plot.png') }}" />
+            </div>
+        </div>
+</div>
 
 </div>
 {% endblock content %}

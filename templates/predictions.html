@@ -1,10 +1,19 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<h3>According to previous data, we think that the stock price fluctuation may look something like this: </h3>
+<div class="predictions">
+
+<h2> Our Predictions </h2>
+<div> <b>Our advanced machine learning model predicts that future price fluctuations for your stock may look something like this.</b></div>
+<br>
+<br>
+<br>
+
+<div class="pred-graphs">
 {% for image in images %}
 <img class="center-block" src="{{ image }}" />
 {% endfor %}
+</div>
 <!-- <h3>Add your contraints: </h3> -->
 <!-- <form id="portfolio" action="/optimize-portfolio" method="POST">
     <label for="hist-data">Length of historical data</label><br> 
@@ -33,6 +42,6 @@
     <input type="submit" value="Optimize portfolio"> 
 </form> -->
 
-
+</div>
 
 {% endblock content %}
