@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="sentiment_container">
+    <form action="/sentiment_analysis" method="post">
+        <label for="stocks_list"><strong>Stocks list:</strong> (ex: AMZN,APPL,IBM) </label>
+        <input type="text" id="stocks_list" name="stocks_list">
+    <p><input type = "submit" value = "submit" /></p>
+    </form>
+    <table>
+        <tr class="table_heading">
+            <th> </th>
+            {% for stock in stocks %}
+                <th>{{ stock }}</th>
+            {% endfor %}
+            <th>Sentiment data</th>
+        </tr>
+        {% for twitter_score in twitter_sentiment_scores %}
+                <td>{{twitter_score}}</td>
+        {% endfor %}
+        <td><a href="{{ url_for('twitter_data')}}">Link</a> </td>
+        <tr>
+        {% for news_score in news_sentiment_scores %}
+            <td>{{news_score}}</td>
+        {% endfor %}
+        <td><a href="{{ url_for('news_data')}}">Link</a> </td>
+        </tr>
+        <tr>
+        {% for reddit_score in reddit_sentiment_scores %}
+            <td>{{reddit_score}}</td>
+        {% endfor %}
+        <td><a href="{{ url_for('reddit_data')}}">Link</a> </td>
+        </tr>
+    </div>
+
+    </table>
+
+</div>
+{% endblock content %}

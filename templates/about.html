@@ -9,7 +9,7 @@
                     <li><strong><a href="http://127.0.0.1:5000/portfolio"> Portfolio Optimization:</a></strong> calculate Max Sharpe ratio portfolio with input list of symbol names,
                         time period of historical data, short-sales constraints, and individual weight constraint. 
                         After seeing the Max Sharpe weights, the users can input their long-short view that can generate an optimal Black-Litterman model portfolio. </li>
-                    <li><strong><a> Sentiment Analysis:</a></strong> show the user the sentiment score of latest posts on social media and news about the particular stock in order 
+                    <li><strong><a href="{{ url_for('sentiment_analysis')}}"> Sentiment Analysis:</a></strong> show the user the sentiment score of latest posts on social media and news about the particular stock in order 
                         to make user aware of the current discussions in public and the news associated with the company. 
                         This way the user will be able to make a bit deeper analysis on each of the stocks and possibly make adjustments 
                         to the weights of stocks in the portfolio based on the overall public sentiment. 

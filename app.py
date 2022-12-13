@@ -28,6 +28,202 @@ def home():
 def about():
     return render_template("about.html")
 
+
+######## Sentiment analysis part#######################
+import requests
+from requests_oauthlib import OAuth1
+
+import pandas as pd
+import json
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+################################################ TWITTER ######################################################
+def create_url_twitter(keyword):
+    consumer_key = '2GEDtzlFMJK6agAMkPQoVTwnl'
+    consumer_secret = '9TvdpLsvdZDbUrihxDd2LUh02P3moWewdAWqTeupJH90SxPkoi'
+    access_token = '1241443545975791617-Qy2ioSjn5qmKfHN17bSKV1RhWv19et'
+    access_secret = 'asmAhYweQTDavRPwrs3FkdJd3557g76rcyksDNGT3b9Nx'
+
+    auth = OAuth1(consumer_key, consumer_secret, access_token, access_secret)
+    
+    url = 'https://api.twitter.com/1.1/search/tweets.json'
+
+    query_params = {'q': keyword,
+                    'count' : 100, 
+                    'lang' : "en"   
+                    }
+
+    res = requests.get(url, params=query_params, auth=auth)
+    return (res.json())
+
+def twitter_api(company_list):
+  df = pd.DataFrame(columns = ['post', 'keyword', 'date', 'link', "sentiment_score"])
+
+  # to make sure that the tweets we see are connected with APPL as a stock 
+  changed_company_list = []
+  for i in range(len(company_list)):
+    changed_company_list.append(company_list[i] + " AND " + "stock")
+
+  # compund sentiment_score per stock
+  compund_sentiment_per_stock = []
+
+
+  for i in changed_company_list:
+    tweets = create_url_twitter(i)
+    for tweet in tweets['statuses']:
+      if len(tweet["entities"]["user_mentions"])!=0:
+        if tweet["text"] in df["post"].values:
+          continue
+        else:
+          stock = i.split(" ")[0]
+          sentiment_dict = SentimentIntensityAnalyzer().polarity_scores(tweet["text"])
+          url = "https://twitter.com/i/web/status/" + tweet["id_str"]
+          row = [tweet["text"], stock, tweet["created_at"], url, sentiment_dict["compound"]]
+          df.loc[len(df.index)] = row
+
+    stock_df = df.loc[df['keyword'] == stock]
+    compund_sentiment_per_stock.append(round(stock_df["sentiment_score"].mean(), 3))
+
+  return [df, compund_sentiment_per_stock]
+################################################ TWITTER ######################################################
+################################################ NEWS ######################################################
+def news_create_url(keyword):
+ 
+    API = '668b3afed7964ff4bba962c15faa74ec'
+    url = 'https://newsapi.org/v2/everything?'
+    parameter = {'q' : keyword,# topic 
+              'apiKey': API,
+              'sortBy':'popularity'
+              }
+
+    news_api = requests.get(url,params=parameter)
+
+    return (news_api.json())
+
+def news_api(company_list):
+  df = pd.DataFrame(columns = ['title', 'keyword', 'date', 'link', "sentiment_score"])
+
+  # to make sure that the tweets we see are connected with APPL as a stock 
+  changed_company_list = []
+  for i in range(len(company_list)):
+    changed_company_list.append(company_list[i] + " AND " + "stock")
+
+  # compund sentiment_score per stock
+  compund_sentiment_per_stock = []
+
+  for i in changed_company_list:
+    newses = news_create_url(i)
+    for news in newses['articles']:
+      stock = i.split(" ")[0]
+      sid_obj = SentimentIntensityAnalyzer()
+      sentiment_dict = sid_obj.polarity_scores(news['content'])
+      score = sentiment_dict['compound']
+      title = news['title']
+      url = news['url']
+      date = news['publishedAt']
+      row = [title, stock, date, url, sentiment_dict["compound"]]
+      df.loc[len(df.index)] = row
+
+    stock_df = df.loc[df['keyword'] == stock]
+    compund_sentiment_per_stock.append(round(stock_df["sentiment_score"].mean(), 3))
+  
+  return [df, compund_sentiment_per_stock]
+
+
+################################################ NEWS ######################################################
+
+################################################ REDDIT ######################################################
+import praw
+import spacy
+
+client_id = 'Qxc7nMBoS_35Rg4hpo4aLQ'
+secret = 'j7ZhGG8zMkouebcIdAEYEkTNul85vw'
+name = 'positech'
+username = 'positech-22'
+password = 'PROJECTSinprogramming22'
+
+reddit = praw.Reddit(client_id = client_id,
+                     client_secret = secret,
+                     user_agent = name,
+                     username = username,
+                     password = password)
+
+reddit.read_only = True
+
+subreddit = reddit.subreddit('stocks+WallStreetBets+Investing')
+
+posts = subreddit.new(limit=100000)
+
+def reddit_api(company_list):
+    df = pd.DataFrame(columns = ['post', 'keyword', 'date', 'link', "sentiment_score"])
+
+    compound_sentiment_per_stock = []
+
+    for post in posts:
+        for word in company_list:
+            if word in post.selftext:
+                sentiment_dict = SentimentIntensityAnalyzer().polarity_scores(post.selftext)
+                row = [post.selftext, word, post.created_utc, post.url, sentiment_dict["compound"]]
+                df.loc[len(df.index)] = row
+
+    for company in company_list:
+        stock_df = df.loc[df['keyword']==company]
+        compound_sentiment_per_stock.append(round(stock_df["sentiment_score"].mean(), 3))
+
+    return [df, compound_sentiment_per_stock]
+
+################################################ REDDIT ######################################################
+@app.route("/sentiment_analysis", methods = ["GET", "POST"])
+def sentiment_analysis():
+    if 'stocks_list' in request.form:
+        stocks = request.form['stocks_list']
+        stocks = stocks.split(",")
+
+        reddit_data_and_scores = reddit_api(stocks)
+        reddit_data = reddit_data_and_scores[0]
+        reddit_data.to_csv("data/reddit_data.csv", index = False)
+        reddit_sentiment_scores = reddit_data_and_scores[1]
+        reddit_sentiment_scores.insert(0, "Reddit sentiment score ")
+
+        twitter_data_and_scores = twitter_api(stocks)
+        twitter_data = twitter_data_and_scores[0]
+        twitter_data.to_csv("data/twitter_data.csv", index = False)
+        twitter_sentiment_scores = twitter_data_and_scores[1]
+        twitter_sentiment_scores.insert(0, "Twitter sentiment score ")
+
+        news_data_and_scores = news_api(stocks)
+        news_data = news_data_and_scores[0]
+        news_data.to_csv("data/news_data.csv", index = False)
+        news_sentiment_scores = news_data_and_scores[1]
+        news_sentiment_scores.insert(0, "News sentiment score ")
+
+    else:
+      stocks = ["Company 1", "Company 2", "Company 3"]
+      reddit_sentiment_scores = ["Reddit sentiment score", "Nan","Nan", "Nan"]
+      news_sentiment_scores = ["News sentiment score","Nan","Nan", "Nan"]
+      twitter_sentiment_scores = ["Twitter sentiment score","Nan","Nan", "Nan"]
+      news_data = pd.DataFrame()
+
+
+    return render_template("sentiment_analysis.html", stocks = stocks, news_data = news_data, twitter_sentiment_scores = twitter_sentiment_scores, reddit_sentiment_scores = reddit_sentiment_scores, news_sentiment_scores = news_sentiment_scores )
+
+@app.route("/twitter_data", methods = ["GET", "POST"])
+def twitter_data():
+    twitter_data = pd.read_csv("data/twitter_data.csv")
+    return render_template("twitter_data.html", tables=[twitter_data.to_html(classes='data', index = False)], titles=twitter_data.columns.values)
+
+@app.route("/news_data", methods = ["GET", "POST"])
+def news_data():
+    news_data = pd.read_csv("data/news_data.csv")
+    return render_template("news_data.html", tables=[news_data.to_html(classes='data', index = False)], titles=news_data.columns.values)
+
+@app.route("/reddit_data", methods = ["GET", "POST"])
+def reddit_data():
+    reddit_data = pd.read_csv("data/reddit_data.csv")
+    reddit_data = reddit_data.iloc[:, 1:]
+    return render_template("reddit_data.html", tables=[reddit_data.to_html(classes='data', index = False)], titles=reddit_data.columns.values)
+
+#######################################
+
 @app.route("/predictions")
 def predictions():
     stocks = session['stock-list']
