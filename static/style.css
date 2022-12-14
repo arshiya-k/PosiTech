@@ -393,6 +393,10 @@ nav a:hover {
     color: white;
 }
 
+.sentiment {
+    font-size: 25px;
+}
+
 .sentiment_container{
     margin: 30px;
 }
